@@ -1,0 +1,11 @@
+{
+  "name": "קהוטם",
+  "short_name": "קהוטם",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#0070d1",
+  "icons": [
+    { "src": "/next.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

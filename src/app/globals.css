@@ -1,26 +1,87 @@
 @import "tailwindcss";
 
+/* ─── Design tokens ───────────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Backgrounds */
+  --bg-base:        #f8fafc; /* slate-50  – pearl white  */
+  --bg-surface:     #ffffff; /* pure white cards         */
+  --bg-surface-2:   #f1f5f9; /* slate-100 – subtle wells */
+
+  /* PlayStation Blue accent */
+  --accent:         #0070d1;
+  --accent-light:   #3b9eff;
+  --accent-glow:    rgba(0, 112, 209, 0.25);
+
+  /* Text */
+  --text-primary:   #0f172a; /* slate-900 */
+  --text-secondary: #475569; /* slate-600 */
+  --text-muted:     #94a3b8; /* slate-400 */
+
+  /* Correct / Wrong */
+  --correct:        #22c55e;
+  --wrong:          #ef4444;
+
+  /* Glass card */
+  --glass-bg:       rgba(255, 255, 255, 0.72);
+  --glass-border:   rgba(255, 255, 255, 0.45);
+  --glass-shadow:   0 8px 32px rgba(15, 23, 42, 0.08);
 }
 
+/* ─── Base reset / font ───────────────────────────────────────── */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-assistant: var(--font-assistant);
+  --color-background: var(--bg-base);
+  --color-foreground: var(--text-primary);
+  --color-accent: var(--accent);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-assistant), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Utilities ───────────────────────────────────────────────── */
+
+/* Glass card helper */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+/* Accent glow ring (focus / selected states) */
+.ring-accent {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-glow), 0 0 0 2px var(--accent);
+}
+
+/* Prevent text selection on interactive game elements */
+.no-select {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Smooth tap highlight for buttons */
+.tap-highlight {
+  -webkit-tap-highlight-color: var(--accent-glow);
+}
+
+/* Hide scrollbar but keep scroll */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
