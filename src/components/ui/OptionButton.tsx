@@ -11,32 +11,18 @@ export type OptionState =
   | "missed"     // reveal: this was correct but player picked something else
   | "disabled";  // reveal: irrelevant wrong option
 
-const OPTION_META = [
-  {
-    letter: "א",
-    idle: "bg-[#0070d1]",
-    ring: "ring-[#004fa0]",
-    shape: "▲",
-  },
-  {
-    letter: "ב",
-    idle: "bg-[#d63384]",
-    ring: "ring-[#a0245e]",
-    shape: "●",
-  },
-  {
-    letter: "ג",
-    idle: "bg-[#198754]",
-    ring: "ring-[#0f5233]",
-    shape: "■",
-  },
-  {
-    letter: "ד",
-    idle: "bg-[#fd7e14]",
-    ring: "ring-[#c45e00]",
-    shape: "✕",
-  },
+const META = [
+  { letter: "א", bg: "#0070d1", glow: "rgba(0,112,209,0.55)",    shape: "▲" },
+  { letter: "ב", bg: "#d63384", glow: "rgba(214,51,132,0.55)",   shape: "◆" },
+  { letter: "ג", bg: "#198754", glow: "rgba(25,135,84,0.55)",    shape: "■" },
+  { letter: "ד", bg: "#fd7e14", glow: "rgba(253,126,20,0.55)",   shape: "●" },
 ] as const;
+
+const STATE_ICON: Partial<Record<OptionState, string>> = {
+  correct: "✓",
+  wrong:   "✗",
+  missed:  "✓",
+};
 
 interface OptionButtonProps {
   index: 0 | 1 | 2 | 3;
@@ -45,74 +31,118 @@ interface OptionButtonProps {
   onClick?: () => void;
 }
 
-const stateOverlay: Record<OptionState, string> = {
-  idle:     "",
-  selected: "ring-4",
-  correct:  "ring-4 brightness-110",
-  wrong:    "opacity-50 saturate-50",
-  missed:   "ring-4 brightness-110",
-  disabled: "opacity-35 saturate-0",
-};
-
-const stateIcon: Partial<Record<OptionState, string>> = {
-  correct: "✓",
-  wrong:   "✗",
-  missed:  "✓",
-};
-
 export default function OptionButton({
   index,
   text,
   state = "idle",
   onClick,
 }: OptionButtonProps) {
-  const meta      = OPTION_META[index];
-  const isDisabled = state !== "idle";
-  const overlay   = stateOverlay[state];
-  const icon      = stateIcon[state];
+  const m        = META[index];
+  const disabled = state !== "idle";
+  const icon     = STATE_ICON[state];
+
+  // Background colour
+  const bg =
+    state === "correct" || state === "missed" ? "#16a34a" : m.bg;
+
+  // Box shadow / glow
+  const shadow =
+    state === "idle"
+      ? `0 4px 18px ${m.glow}, 0 1px 4px rgba(0,0,0,0.12)`
+      : state === "selected"
+      ? `0 0 0 3px white, 0 0 0 6px ${m.bg}, 0 10px 32px ${m.glow}`
+      : state === "correct"
+      ? `0 0 0 3px white, 0 0 0 6px #16a34a, 0 10px 36px rgba(22,163,74,0.65)`
+      : state === "missed"
+      ? `0 0 0 3px white, 0 0 0 6px #16a34a, 0 8px 24px rgba(22,163,74,0.45)`
+      : "none";
 
   return (
     <motion.button
       type="button"
-      onClick={isDisabled ? undefined : onClick}
-      disabled={isDisabled}
-      aria-label={`אפשרות ${meta.letter}: ${text}`}
-      whileTap={isDisabled ? {} : { scale: 0.97 }}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ type: "spring", stiffness: 300, damping: 24, delay: index * 0.07 }}
+      onClick={disabled ? undefined : onClick}
+      disabled={disabled}
+      aria-label={`אפשרות ${m.letter}: ${text}`}
+      initial={{ opacity: 0, y: 32, scale: 0.86 }}
+      animate={{
+        opacity: state === "disabled" ? 0.28 : state === "wrong" ? 0.42 : 1,
+        y: 0,
+        scale:
+          state === "disabled" ? 0.95
+          : state === "selected" ? 1.025
+          : state === "correct" || state === "missed" ? 1.01
+          : 1,
+        x: state === "wrong" ? [-7, 7, -5, 5, 0] : 0,
+        filter:
+          state === "wrong"
+            ? "saturate(0.1) brightness(0.65)"
+            : "saturate(1) brightness(1)",
+      }}
+      transition={{
+        y:      { type: "spring", stiffness: 280, damping: 22, delay: index * 0.08 },
+        scale:  { type: "spring", stiffness: 420, damping: 26 },
+        x:      { duration: 0.38, ease: "easeOut" },
+        opacity:{ duration: 0.22 },
+        filter: { duration: 0.3 },
+      }}
+      whileTap={disabled ? {} : { scale: 0.93 }}
       className={[
-        // base layout
-        "relative w-full min-h-[72px] flex items-center gap-4 px-5 py-4",
+        "relative w-full min-h-21 flex items-center gap-4 px-5 py-4",
         "rounded-2xl select-none no-select tap-highlight",
-        "text-right text-white font-semibold text-lg leading-snug",
-        "transition-all duration-200",
-        // colour
-        meta.idle,
-        meta.ring,
-        // state overlay
-        overlay,
-        isDisabled ? "cursor-default" : "cursor-pointer",
+        "text-right text-white font-bold text-lg leading-snug",
+        disabled ? "cursor-default" : "cursor-pointer",
       ].join(" ")}
+      style={{
+        backgroundColor: bg,
+        boxShadow: shadow,
+        transition: "background-color 0.32s ease, box-shadow 0.25s ease",
+      }}
     >
-      {/* Letter badge */}
-      <span className="shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-black/20 font-bold text-xl">
-        {meta.letter}
+      {/* Shape badge */}
+      <span
+        className="shrink-0 w-12 h-12 flex items-center justify-center rounded-xl bg-black/20 text-2xl font-black"
+        aria-hidden
+      >
+        {m.shape}
       </span>
 
       {/* Option text */}
       <span className="flex-1 text-right">{text}</span>
 
-      {/* State icon */}
+      {/* Result icon */}
       {icon && (
         <motion.span
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ type: "spring", stiffness: 400, damping: 20 }}
-          className="shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-white/25 text-lg font-bold"
+          initial={{ scale: 0, rotate: -25 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ type: "spring", stiffness: 520, damping: 22 }}
+          className="shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-white/25 text-xl font-black"
         >
           {icon}
         </motion.span>
+      )}
+
+      {/* Pulsing glow when selected */}
+      {state === "selected" && (
+        <motion.div
+          className="absolute inset-0 rounded-2xl pointer-events-none"
+          animate={{ opacity: [0.35, 0] }}
+          transition={{ duration: 1.1, repeat: Infinity }}
+          style={{
+            background:
+              "radial-gradient(ellipse at center, rgba(255,255,255,0.28), transparent 70%)",
+          }}
+        />
+      )}
+
+      {/* Flash on correct */}
+      {(state === "correct" || state === "missed") && (
+        <motion.div
+          className="absolute inset-0 rounded-2xl pointer-events-none"
+          initial={{ opacity: 0.6 }}
+          animate={{ opacity: 0 }}
+          transition={{ duration: 0.6 }}
+          style={{ background: "rgba(255,255,255,0.35)" }}
+        />
       )}
     </motion.button>
   );

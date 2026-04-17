@@ -130,7 +130,7 @@ export default function HomePage() {
         >
           <Logo size="lg" />
           <p className="mt-2 text-slate-500 text-base font-medium">
-            משחק הטריוויה הכי מהיר
+            הבית של החידונים
           </p>
         </motion.div>
 

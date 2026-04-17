@@ -82,6 +82,8 @@ export default function GameClient({ gameId }: Props) {
     : null;
 
   const questionNumber = game.current_question_index + 1;
+  const myPlayer   = players.find((p) => p.id === playerId);
+  const myStreak   = myPlayer?.current_streak ?? 0;
 
   // ── Render based on game status ───────────────────────────
   return (
@@ -106,6 +108,7 @@ export default function GameClient({ gameId }: Props) {
               question={currentQuestion}
               questionNumber={questionNumber}
               totalQuestions={totalQuestions}
+              playerStreak={myStreak}
             />
           )}
 

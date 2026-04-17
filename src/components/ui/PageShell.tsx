@@ -9,22 +9,34 @@ interface PageShellProps {
 
 /**
  * Full-screen page wrapper with PS5 light-mode pearl-white background
- * and two decorative blur orbs (consistent with PS5 UI aesthetic).
+ * and two animated decorative blur orbs.
  */
 export default function PageShell({ children, className = "" }: PageShellProps) {
   return (
     <div className={`relative min-h-screen w-full bg-slate-50 overflow-hidden ${className}`}>
-      {/* Decorative orb – top-right (PS Blue) */}
-      <div
+      {/* Orb — top-right (PS Blue), slow drift */}
+      <motion.div
         aria-hidden
-        className="pointer-events-none absolute -top-32 -right-32 w-96 h-96 rounded-full opacity-20 blur-3xl"
-        style={{ background: "radial-gradient(circle, #3b9eff, transparent 70%)" }}
+        className="pointer-events-none absolute -top-32 -right-32 w-96 h-96 rounded-full blur-3xl"
+        style={{ background: "radial-gradient(circle, #3b9eff, transparent 70%)", opacity: 0.22 }}
+        animate={{
+          scale: [1, 1.15, 1],
+          x: [0, 16, 0],
+          y: [0, -12, 0],
+        }}
+        transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
       />
-      {/* Decorative orb – bottom-left (slate) */}
-      <div
+      {/* Orb — bottom-left (violet accent), slow drift */}
+      <motion.div
         aria-hidden
-        className="pointer-events-none absolute -bottom-32 -left-32 w-80 h-80 rounded-full opacity-10 blur-3xl"
-        style={{ background: "radial-gradient(circle, #94a3b8, transparent 70%)" }}
+        className="pointer-events-none absolute -bottom-32 -left-32 w-80 h-80 rounded-full blur-3xl"
+        style={{ background: "radial-gradient(circle, #a78bfa, transparent 70%)", opacity: 0.13 }}
+        animate={{
+          scale: [1, 1.2, 1],
+          x: [0, -14, 0],
+          y: [0, 10, 0],
+        }}
+        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 3 }}
       />
 
       <motion.div

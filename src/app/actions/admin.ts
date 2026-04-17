@@ -88,11 +88,25 @@ export async function advanceGame(gameId: string, action: AdminAction): Promise<
         .eq("id", gameId);
       break;
 
-    case "show-leaderboard":
+    case "show-leaderboard": {
+      // On the last question, skip the leaderboard and go straight to finished
+      const [gameRes, countRes] = await Promise.all([
+        adminSupabase.from("games")
+          .select("current_question_index")
+          .eq("id", gameId)
+          .single(),
+        adminSupabase.from("game_questions")
+          .select("id", { count: "exact", head: true })
+          .eq("game_id", gameId),
+      ]);
+      if (!gameRes.data) throw new Error("Game not found");
+      const isLast = (countRes.count ?? 0) > 0 &&
+        gameRes.data.current_question_index + 1 >= (countRes.count ?? 0);
       await adminSupabase.from("games")
-        .update({ status: "leaderboard" })
+        .update({ status: isLast ? "finished" : "leaderboard" })
         .eq("id", gameId);
       break;
+    }
 
     case "next-question": {
       const { data: game } = await adminSupabase.from("games")
